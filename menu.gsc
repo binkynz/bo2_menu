@@ -41,7 +41,7 @@ menu_add_item(name, func)
 
     self.items[name].item = self menu_init_item(name, idx * self.base.height);
     self.items[name].func = func;
-    self.items[name].is_selected = idx == 1;
+    self.items[name].is_selected = false;
 }
 
 menu_control()
@@ -61,23 +61,24 @@ menu_control()
         {
             item_keys = getarraykeys(self.items);
 
+            self.items[item_keys[self.selected]].item.color = (0, 0, 0);
             self.items[item_keys[self.selected]].is_selected = false;
+
             if (up)
             {
-                self.selected -= 1;
-                if (self.selected < 0)
-                    self.selected = item_keys.size - 1;
+                self.selected += 1;
+                if (self.selected >= self.items.size)
+                    self.selected = 0;
             }
             else
             {
-                self.selected += 1;
-                if (self.selected >= item_keys.size)
-                    self.selected = 0;
+                self.selected -= 1;
+                if (self.selected < 0)
+                    self.selected = self.items.size - 1;
             }
 
+            self.items[item_keys[self.selected]].item.color = (1, 0, 0);
             self.items[item_keys[self.selected]].is_selected = true;
-
-            self.user iprintln(self.selected);
         }
     }
 }
