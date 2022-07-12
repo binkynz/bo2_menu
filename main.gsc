@@ -34,16 +34,36 @@ create_menu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Sassy the Sasquatch", 200);
-    menu menu_add_item("1", ::create_submenu);
-    menu menu_add_item("2");
-    menu menu_add_item("3");
-    menu menu_add_item("Exit", ::menu_control_close);
-    menu thread menu_control();
-    menu thread menu_monitor();
+    menu = self menu_init("Sassy", 200);
+    menu menu_add_item("Lez", ::create_lez_submenu, true);
+    menu menu_add_item("Donny", ::create_donny_submenu, true);
+    menu menu_add_item("Mike", ::create_mike_submenu, true);
+    menu menu_add_item("Exit", ::menu_close);
 }
 
-create_submenu()
+create_lez_submenu()
 {
+    self endon("disconnect");
 
+    menu = self menu_init("Lez", 200);
+    menu menu_add_item("Sassy", ::create_menu, true);
+    menu menu_add_item("Exit", ::menu_close);
+}
+
+create_donny_submenu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Donny", 200);
+    menu menu_add_item("Sassy", ::create_menu, true);
+    menu menu_add_item("Exit", ::menu_close);
+}
+
+create_mike_submenu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Mike", 200);
+    menu menu_add_item("Sassy", ::create_menu, true);
+    menu menu_add_item("Exit", ::menu_close);
 }

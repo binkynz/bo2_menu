@@ -46,3 +46,11 @@ render_show_elem()
     self showelem();
     self.alpha = self.stored_alpha;
 }
+
+render_destroy_elem()
+{
+    foreach (child in self.children)
+        child render_destroy_elem();
+
+    self destroyelem();
+}

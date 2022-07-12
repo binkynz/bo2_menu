@@ -2,11 +2,11 @@
 
 #include scripts\zm\render;
 
-menu_init(title, width)
+menu_init(title, width, open)
 {
     menu = spawnstruct();
 
-    menu.open = false;
+    menu.open = true;
     menu.user = self;
     menu.width = width;
     menu.items = [];
@@ -18,7 +18,21 @@ menu_init(title, width)
     menu.inactive_color = (0, 0, 0);
     menu.active_color = (1, 0, 0);
 
+    menu thread menu_control();
+    menu thread menu_monitor_openclose();
+    menu thread menu_monitor_destroy();
+
     return menu;
+}
+
+menu_close()
+{
+    self notify("close_menu");
+}
+
+menu_destroy()
+{
+    self notify("destroy_menu");
 }
 
 menu_init_item(name, offset)
@@ -37,7 +51,7 @@ menu_init_item(name, offset)
     return shader;
 }
 
-menu_add_item(name, func)
+menu_add_item(name, func, is_menu)
 {
     idx = self.items.size;
 
@@ -50,12 +64,13 @@ menu_add_item(name, func)
         self.items[idx].item.color = self.active_color;
 
     self.items[idx].func = func;
+    self.items[idx].is_menu = is_menu;
 }
 
 menu_control()
 {
+    self endon("destroy_menu");
     self.user endon("disconnect");
-    self.user endon("destroy_menu");
 
     for (;;)
     {
@@ -74,12 +89,7 @@ menu_control()
 menu_control_open()
 {
     if (!self.open && self.user adsbuttonpressed() && self.user meleebuttonpressed())
-        self.user notify("open_menu");
-}
-
-menu_control_close()
-{
-    self.user notify("close_menu");
+        self notify("open_menu");
 }
 
 menu_control_scroll()
@@ -109,25 +119,47 @@ menu_control_scroll()
 
 menu_control_item()
 {
-    if (self.user usebuttonpressed())
-        self [[self.items[self.selected].func]]();
+    if (!self.user usebuttonpressed())
+        return;
+
+    // not the best solution but meh
+    while (self.user usebuttonpressed())
+        wait 0.05;
+
+    item = self.items[self.selected];
+    if (!isdefined(item.is_menu))
+        self thread [[item.func]]();
+    else
+    {
+        self.user thread [[item.func]]();
+        self menu_destroy();
+    }
 }
 
-menu_monitor()
+menu_monitor_openclose()
 {
+    self endon("destroy_menu");
     self.user endon("disconnect");
 
     for (;;)
     {
         if (!self.open)
         {
-            self.user waittill("open_menu");
+            self waittill("open_menu");
             self.base render_show_elem();
             self.open = true;
         }
 
-        self.user waittill("close_menu");
+        self waittill("close_menu");
         self.base render_hide_elem();
         self.open = false;
     }
+}
+
+menu_monitor_destroy()
+{
+    self.user endon("disconnect");
+
+    self waittill("destroy_menu");
+    self.base render_destroy_elem();
 }
