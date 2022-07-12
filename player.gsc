@@ -25,6 +25,6 @@ player_health()
     {
         self.player_health_text setvalue(self.health);
 
-        wait 0.5;
+        wait 0.05;
     }
 }

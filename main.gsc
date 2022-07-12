@@ -1,7 +1,9 @@
+#include common_scripts\utility;
 #include maps\mp\gametypes_zm\_hud_util;
 
 #include scripts\zm\menu;
 #include scripts\zm\player;
+#include scripts\zm\server;
 
 init()
 {
@@ -26,7 +28,9 @@ on_player_spawned()
     for(;;)
     {
         self waittill("spawned_player");
+
         self thread create_menu();
+        self thread server_timer();
     }
 }
 
@@ -34,37 +38,31 @@ create_menu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Sassy", 200);
-    menu menu_add_menu("Lez", ::create_lez_submenu);
-    menu menu_add_menu("Donny", ::create_donny_submenu);
-    menu menu_add_menu("Mike", ::create_mike_submenu);
+    flag_wait("initial_blackscreen_passed");
+
+    menu = self menu_init("Main Menu", 200);
+    menu menu_add_menu("Client", ::create_client_submenu);
+    menu menu_add_menu("Server", ::create_server_submenu);
     menu menu_add_item("Exit", ::menu_close);
 }
 
-create_lez_submenu()
+create_client_submenu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Lez", 200);
-    menu menu_add_menu("Sassy", ::create_menu);
-    menu menu_add_item("Player Health", ::toggle_player_health, true);
+    menu = self menu_init("Client", 200);
+    menu menu_add_menu("Back", ::create_menu);
+    menu menu_add_item("Show Player Health", ::toggle_player_health, true);
     menu menu_add_item("Exit", ::menu_close);
 }
 
-create_donny_submenu()
+create_server_submenu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Donny", 200);
-    menu menu_add_menu("Sassy", ::create_menu);
-    menu menu_add_item("Exit", ::menu_close);
-}
-
-create_mike_submenu()
-{
-    self endon("disconnect");
-
-    menu = self menu_init("Mike", 200);
-    menu menu_add_menu("Sassy", ::create_menu);
+    menu = self menu_init("Server", 200);
+    menu menu_add_menu("Back", ::create_menu);
+    menu menu_add_item("Show Game Time", ::toggle_server_timer, true);
+    menu menu_add_item("Fast Zombie Spawn", ::toggle_fast_zombies, true);
     menu menu_add_item("Exit", ::menu_close);
 }

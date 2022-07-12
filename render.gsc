@@ -21,6 +21,19 @@ render_create_shader(shader, width, height, color, alpha, sort)
     return hud;
 }
 
+render_server_timer(alignx, aligny, horzalign, vertalign)
+{
+    hud = createservertimer("default", 1);
+
+    hud.alignx = alignx;
+    hud.aligny = aligny;
+    hud.horzalign = horzalign;
+    hud.vertalign = vertalign;
+    hud.foreground = true;
+
+    return hud;
+}
+
 render_hide_elem()
 {
     if (self.hidden)
