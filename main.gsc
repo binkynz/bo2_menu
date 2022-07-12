@@ -22,14 +22,28 @@ on_player_spawned()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Sassy the Sasquatch", 200);
-    menu menu_add_item("1");
-    menu menu_add_item("2");
-    menu menu_add_item("3");
-    menu thread menu_control();
+    self thread create_menu();
 
     for(;;)
     {
         self waittill("spawned_player");
     }
+}
+
+create_menu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Sassy the Sasquatch", 200);
+    menu menu_add_item("1", ::create_submenu);
+    menu menu_add_item("2");
+    menu menu_add_item("3");
+    menu menu_add_item("Exit", ::menu_control_close);
+    menu thread menu_control();
+    menu thread menu_monitor();
+}
+
+create_submenu()
+{
+
 }

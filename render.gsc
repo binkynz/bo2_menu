@@ -27,7 +27,7 @@ render_hide_elem()
         return;
 
     foreach (child in self.children)
-        child hideelem();
+        child render_hide_elem();
 
     self hideelem();
 }
@@ -39,7 +39,7 @@ render_show_elem()
 
     foreach (child in self.children)
     {
-        child showelem();
+        child render_show_elem();
         child.alpha = child.stored_alpha;
     }
 
