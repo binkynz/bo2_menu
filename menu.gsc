@@ -2,7 +2,7 @@
 
 #include scripts\zm\render;
 
-menu_init(title, width, open)
+menu_init(title, width)
 {
     menu = spawnstruct();
 
@@ -51,7 +51,7 @@ menu_init_item(name, offset)
     return shader;
 }
 
-menu_add_item(name, func, is_menu)
+menu_add_item(name, func, use_player)
 {
     idx = self.items.size;
 
@@ -64,7 +64,14 @@ menu_add_item(name, func, is_menu)
         self.items[idx].item.color = self.active_color;
 
     self.items[idx].func = func;
-    self.items[idx].is_menu = is_menu;
+    self.items[idx].use_player = use_player;
+}
+
+menu_add_menu(name, func)
+{
+    self menu_add_item(name, func);
+
+    self.items[self.items.size - 1].is_menu = true;
 }
 
 menu_control()
@@ -128,7 +135,12 @@ menu_control_item()
 
     item = self.items[self.selected];
     if (!isdefined(item.is_menu))
-        self thread [[item.func]]();
+    {
+        if (!isdefined(item.use_player))
+            self thread [[item.func]]();
+        else
+            self.user thread [[item.func]]();
+    }
     else
     {
         self.user thread [[item.func]]();
