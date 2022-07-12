@@ -7,7 +7,7 @@ toggle_fast_zombies()
     if (!isdefined(level.zombie_spawn_delay))
         level.zombie_spawn_delay = level.zombie_vars["zombie_spawn_delay"];
 
-    if (level.zombie_vars["zombie_spawn_delay"] != 0)
+    if (level.zombie_vars["zombie_spawn_delay"] > 0)
         level.zombie_vars["zombie_spawn_delay"] = 0;
     else
         level.zombie_vars["zombie_spawn_delay"] = level.zombie_spawn_delay;
@@ -32,7 +32,7 @@ server_timer()
     level.server_timer settimerup(0);
 
     start_time = int(gettime() / 1000);
-    self waittill("end_game");
+    level waittill("end_game");
     end_time = int(gettime() / 1000);
 
     for (;;)
