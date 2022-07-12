@@ -4,11 +4,11 @@
 
 toggle_fast_zombies()
 {
-    if (level.zombie_vars["zombie_spawn_delay"] != 0)
-    {
+    if (!isdefined(level.zombie_spawn_delay))
         level.zombie_spawn_delay = level.zombie_vars["zombie_spawn_delay"];
+
+    if (level.zombie_vars["zombie_spawn_delay"] != 0)
         level.zombie_vars["zombie_spawn_delay"] = 0;
-    }
     else
         level.zombie_vars["zombie_spawn_delay"] = level.zombie_spawn_delay;
 
