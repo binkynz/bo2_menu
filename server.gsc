@@ -111,8 +111,6 @@ toggle_server_powerup_packapunch()
 {
     if (!level.zombie_powerups["packapunch"])
     {
-        level.zombie_powerup_array = [];
-
         include_zombie_powerup("packapunch");
         add_zombie_powerup("packapunch", "t6_wpn_zmb_raygun2_upg_world", &"ZOMBIE_POWERUP_PACKAPUNCH", ::func_should_never_drop, 0, 0, 0);
 
