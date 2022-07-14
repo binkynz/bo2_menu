@@ -30,7 +30,9 @@ on_player_spawned()
         self waittill("spawned_player");
 
         self thread create_menu();
+
         self thread server_timer();
+        self thread server_fast_zombies();
     }
 }
 
@@ -63,6 +65,6 @@ create_server_submenu()
     menu = self menu_init("Server", 200);
     menu menu_add_menu("Back", ::create_menu);
     menu menu_add_item("Show Game Time", ::toggle_server_timer, true);
-    menu menu_add_item("Fast Zombie Spawn", ::toggle_fast_zombies, true);
+    menu menu_add_item("Fast Zombie Spawn", ::toggle_server_fast_zombies, true);
     menu menu_add_item("Exit", ::menu_close);
 }

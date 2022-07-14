@@ -1,18 +1,44 @@
+#include common_scripts\utility;
 #include maps\mp\gametypes_zm\_hud_util;
 
 #include scripts\zm\render;
 
-toggle_fast_zombies()
+toggle_server_fast_zombies()
 {
-    if (!isdefined(level.zombie_spawn_delay))
-        level.zombie_spawn_delay = level.zombie_vars["zombie_spawn_delay"];
+    if (!isdefined(level.is_fast_zombies))
+        level.is_fast_zombies = false;
 
-    if (level.zombie_vars["zombie_spawn_delay"] > 0)
-        level.zombie_vars["zombie_spawn_delay"] = 0;
-    else
-        level.zombie_vars["zombie_spawn_delay"] = level.zombie_spawn_delay;
+    level.is_fast_zombies = !level.is_fast_zombies;
 
-    iprintln("Zombie Spawn Delay = " + level.zombie_vars["zombie_spawn_delay"]);
+    level notify("toggled_fast_zombies");
+}
+
+server_fast_zombies()
+{
+    self endon("disconnect");
+
+    for (;;)
+    {
+        level waittill_any("toggled_fast_zombies", "end_of_round");
+
+        if (level.is_fast_zombies)
+            level.zombie_vars["zombie_spawn_delay"] = 0;
+        else if (level.round_number == 1)
+            level.zombie_vars["zombie_spawn_delay"] = 2;
+        else
+        {
+            level.zombie_vars["zombie_spawn_delay"] = 2;
+            for (i = 2; i <= level.round_number; i++)
+            {
+                if (level.zombie_vars["zombie_spawn_delay"] > 0.08)
+                    level.zombie_vars["zombie_spawn_delay"] *= 0.95;
+                else
+                    level.zombie_vars["zombie_spawn_delay"] = 0.08;
+            }
+        }
+
+        self iprintln("zombie_spawn_delay = " + level.zombie_vars["zombie_spawn_delay"]);
+    }
 }
 
 toggle_server_timer()
