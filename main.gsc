@@ -17,6 +17,7 @@ on_player_connect()
     for(;;)
     {
         level waittill("connected", player);
+
         player thread on_player_spawned();
     }
 }
@@ -55,6 +56,7 @@ create_client_submenu()
     menu = self menu_init("Client", 200);
     menu menu_add_menu("Back", ::create_menu);
     menu menu_add_item("Show Player Health", ::toggle_player_health, true);
+    menu menu_add_item("Show Zombie Counter", ::toggle_player_zombie_counter, true);
     menu menu_add_item("Exit", ::menu_close);
 }
 
