@@ -1,6 +1,7 @@
 #include common_scripts\utility;
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\zombies\_zm_powerups;
+#include maps\mp\zombies\_zm_weapons;
 
 #include scripts\zm\render;
 
@@ -104,4 +105,56 @@ toggle_server_powerup_perk()
         level.zombie_powerups["free_perk"].func_should_drop_with_regular_powerups = ::func_should_never_drop;
 
     iprintln("is_powerup_perk = " + level.is_powerup_perk);
+}
+
+toggle_server_powerup_packapunch()
+{
+    if (!level.zombie_powerups["packapunch"])
+    {
+        level.zombie_powerup_array = [];
+
+        include_zombie_powerup("packapunch");
+        add_zombie_powerup("packapunch", "t6_wpn_zmb_raygun2_upg_world", &"ZOMBIE_POWERUP_PACKAPUNCH", ::func_should_never_drop, 0, 0, 0);
+
+        if (isdefined(level._zombiemode_powerup_grab))
+            level.stored_zombiemode_powerup_grab = level._zombiemode_powerup_grab;
+
+        level._zombiemode_powerup_grab = ::server_packapunch_powerup_grab;
+    }
+
+    if (!isdefined(level.is_powerup_packapunch))
+        level.is_powerup_packapunch = false;
+
+    level.is_powerup_packapunch = !level.is_powerup_packapunch;
+
+    if (level.is_powerup_packapunch)
+        level.zombie_powerups["packapunch"].func_should_drop_with_regular_powerups = ::func_should_always_drop;
+    else
+        level.zombie_powerups["packapunch"].func_should_drop_with_regular_powerups = ::func_should_never_drop;
+
+    iprintln("is_powerup_packapunch = " + level.is_powerup_packapunch);
+}
+
+server_packapunch_powerup_grab(powerup, player)
+{
+    if (powerup.powerup_name == "packapunch")
+        level thread server_packapunch_powerup(powerup, player);
+    else if (isdefined(level.stored_zombiemode_powerup_grab))
+        level thread [[level.stored_zombiemode_powerup_grab]](powerup, player);
+}
+
+server_packapunch_powerup(powerup, player)
+{
+    player endon("disconnect");
+
+    weapon_name = player getcurrentweapon();
+    if (!can_upgrade_weapon(weapon_name))
+        return;
+
+    player takeweapon(weapon_name);
+
+    weapon = get_upgrade_weapon(weapon_name, will_upgrade_weapon_as_attachment(weapon_name));
+
+    player giveweapon(weapon, 0, player get_pack_a_punch_weapon_options(weapon));
+    player switchtoweapon(weapon);
 }
