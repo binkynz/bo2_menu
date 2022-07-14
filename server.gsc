@@ -3,6 +3,34 @@
 
 #include scripts\zm\render;
 
+toggle_server_timer()
+{
+    if (level.server_timer.hidden)
+        level.server_timer render_show_elem();
+    else
+        level.server_timer render_hide_elem();
+}
+
+server_timer()
+{
+    self endon("disconnect");
+
+    level.server_timer = render_server_timer("left", "top", "user_left", "user_top");
+    level.server_timer render_hide_elem();
+    level.server_timer settimerup(0);
+
+    start_time = int(gettime() / 1000);
+    level waittill("end_game");
+    end_time = int(gettime() / 1000);
+
+    for (;;)
+    {
+        level.server_timer settimer(end_time - start_time);
+
+        wait 0.05;
+    }
+}
+
 toggle_server_fast_zombies()
 {
     if (!isdefined(level.is_fast_zombies))
@@ -41,30 +69,17 @@ server_fast_zombies()
     }
 }
 
-toggle_server_timer()
+toggle_server_perk_limit()
 {
-    if (level.server_timer.hidden)
-        level.server_timer render_show_elem();
+    if (!isdefined(level.is_unlimited_perks))
+        level.is_unlimited_perks = false;
+
+    level.is_unlimited_perks = !level.is_unlimited_perks;
+
+    if (level.is_unlimited_perks)
+        level.perk_purchase_limit = 9;
     else
-        level.server_timer render_hide_elem();
-}
+        level.perk_purchase_limit = 4;
 
-server_timer()
-{
-    self endon("disconnect");
-
-    level.server_timer = render_server_timer("left", "top", "user_left", "user_top");
-    level.server_timer render_hide_elem();
-    level.server_timer settimerup(0);
-
-    start_time = int(gettime() / 1000);
-    level waittill("end_game");
-    end_time = int(gettime() / 1000);
-
-    for (;;)
-    {
-        level.server_timer settimer(end_time - start_time);
-
-        wait 0.05;
-    }
+    iprintln("perk_purchase_limit = " + level.perk_purchase_limit);
 }

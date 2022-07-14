@@ -19,7 +19,7 @@ player_health()
 
     self.player_health_text = self createfontstring("default", 1);
     self.player_health_text setpoint("CENTER", "BOTTOM", 0, 0);
-    self.player_health_text.label = &"Health: ";
+    self.player_health_text.label = &"Health: ^2";
 
     for (;;)
     {
