@@ -78,7 +78,7 @@ toggle_server_perk_limit()
     level.is_unlimited_perks = !level.is_unlimited_perks;
 
     if (level.is_unlimited_perks)
-        level.perk_purchase_limit = 9;
+        level.perk_purchase_limit = getentarray("zombie_vending", "targetname").size;
     else
         level.perk_purchase_limit = 4;
 
