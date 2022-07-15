@@ -47,16 +47,16 @@ create_menu()
     flag_wait("initial_blackscreen_passed");
 
     menu = self menu_init("Main Menu", 200);
-    menu menu_add_menu("Client", ::create_client_submenu);
-    menu menu_add_menu("Server", ::create_server_submenu);
+    menu menu_add_menu("Client Menu", ::create_client_menu);
+    menu menu_add_menu("Server Menu", ::create_server_menu);
     menu menu_add_item("Exit", ::menu_close);
 }
 
-create_client_submenu()
+create_client_menu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Client", 200);
+    menu = self menu_init("Client Menu", 200);
     menu menu_add_menu("Back", ::create_menu);
     menu menu_add_item("Show Game Time", ::toggle_player_timer, true);
     menu menu_add_item("Show Player Health", ::toggle_player_health, true);
@@ -64,15 +64,45 @@ create_client_submenu()
     menu menu_add_item("Exit", ::menu_close);
 }
 
-create_server_submenu()
+create_server_menu()
 {
     self endon("disconnect");
 
-    menu = self menu_init("Server", 200);
+    menu = self menu_init("Server Menu", 200);
     menu menu_add_menu("Back", ::create_menu);
+    menu menu_add_menu("Zombie Menu", ::create_server_zombie_menu);
+    menu menu_add_menu("Perk Menu", ::create_server_perk_menu);
+    menu menu_add_menu("Powerup Menu", ::create_server_powerup_menu);
+    menu menu_add_item("Exit", ::menu_close);
+}
+
+create_server_zombie_menu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Server Zombie Menu", 200);
+    menu menu_add_menu("Back", ::create_server_menu);
     menu menu_add_item("Fast Zombie Spawn", ::toggle_server_fast_zombies, true);
+    menu menu_add_item("Exit", ::menu_close);
+}
+
+create_server_perk_menu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Server Perk Menu", 200);
+    menu menu_add_menu("Back", ::create_server_menu);
     menu menu_add_item("Unlimited Perks", ::toggle_server_perk_limit, true);
-    menu menu_add_item("Allow Perk Powerup", ::toggle_server_powerup_perk, true);
-    menu menu_add_item("Allow PackAPunch Powerup", ::toggle_server_powerup_packapunch, true);
+    menu menu_add_item("Exit", ::menu_close);
+}
+
+create_server_powerup_menu()
+{
+    self endon("disconnect");
+
+    menu = self menu_init("Server Powerup Menu", 200);
+    menu menu_add_menu("Back", ::create_server_menu);
+    menu menu_add_item("Perk Powerup", ::toggle_server_powerup_perk, true);
+    menu menu_add_item("PackAPunch Powerup", ::toggle_server_powerup_packapunch, true);
     menu menu_add_item("Exit", ::menu_close);
 }

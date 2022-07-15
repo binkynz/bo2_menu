@@ -47,11 +47,17 @@ player_health()
     self endon("stop_player_health");
 
     self.player_health_text = self createfontstring("default", 1);
-    self.player_health_text setpoint("BOTTOM LEFT", "BOTTOM LEFT", 0, 0);
+    self.player_health_text setpoint("BOTTOM", "BOTTOM", 0, 0);
     self.player_health_text.label = &"Health: ^2";
 
     for (;;)
     {
+        // change me
+        if (isdefined(self.player_zombie_text)
+            self.player_health_text setpoint("BOTTOM", "BOTTOM", -100, 0);
+        else
+            self.player_health_text setpoint("BOTTOM", "BOTTOM", 0, 0);
+
         self.player_health_text setvalue(self.health);
 
         wait 0.05;
@@ -79,6 +85,12 @@ player_zombie_counter()
 
     for (;;)
     {
+        // change me
+        if (isdefined(self.player_health_text))
+            self.player_zombie_text setpoint("BOTTOM", "BOTTOM", 100, 0);
+        else
+            self.player_zombie_text setpoint("BOTTOM", "BOTTOM", 0, 0);
+
         self.player_zombie_text setvalue(get_round_enemy_array().size + level.zombie_total);
 
         wait 0.05;

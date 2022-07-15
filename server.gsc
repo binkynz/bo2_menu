@@ -5,6 +5,7 @@
 #include maps\mp\zombies\_zm_laststand;
 #include maps\mp\zombies\_zm_perks;
 #include maps\mp\zombies\_zm_net;
+#include maps\mp\zombies\_zm_utility;
 
 #include scripts\zm\render;
 
@@ -54,7 +55,7 @@ toggle_server_perk_limit()
     level.is_unlimited_perks = !level.is_unlimited_perks;
 
     if (level.is_unlimited_perks)
-        level.perk_purchase_limit = 9;
+        level.perk_purchase_limit = 9; // change from being fixed
     else
         level.perk_purchase_limit = 4;
 
@@ -184,14 +185,33 @@ server_packapunch_powerup(powerup, player)
 {
     player endon("disconnect");
 
+    if (is_true(player.has_powerup_weapon))
+        return;
+
     weapon_name = player getcurrentweapon();
     if (!can_upgrade_weapon(weapon_name))
         return;
 
-    player takeweapon(weapon_name);
+    player.has_powerup_weapon = true;
+    player increment_is_drinking();
 
     weapon = get_upgrade_weapon(weapon_name, will_upgrade_weapon_as_attachment(weapon_name));
 
     player giveweapon(weapon, 0, player get_pack_a_punch_weapon_options(weapon));
     player switchtoweapon(weapon);
+
+    // should add a icon/text displaying time remaining
+
+    countdown = 30;
+    while (countdown > 0)
+    {
+        wait 0.05;
+        countdown -= 0.05;
+    }
+
+    player takeweapon(weapon);
+    player switchtoweapon(weapon_name);
+
+    player.has_powerup_weapon = false;
+    player decrement_is_drinking();
 }
