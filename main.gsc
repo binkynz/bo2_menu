@@ -32,8 +32,11 @@ on_player_spawned()
 
         self thread create_menu();
 
-        self thread server_timer();
+        self thread player_timer();
         self thread server_fast_zombies();
+
+        // tests
+        // self thread server_powerup_test();
     }
 }
 
@@ -55,6 +58,7 @@ create_client_submenu()
 
     menu = self menu_init("Client", 200);
     menu menu_add_menu("Back", ::create_menu);
+    menu menu_add_item("Show Game Time", ::toggle_player_timer, true);
     menu menu_add_item("Show Player Health", ::toggle_player_health, true);
     menu menu_add_item("Show Zombie Counter", ::toggle_player_zombie_counter, true);
     menu menu_add_item("Exit", ::menu_close);
@@ -66,7 +70,6 @@ create_server_submenu()
 
     menu = self menu_init("Server", 200);
     menu menu_add_menu("Back", ::create_menu);
-    menu menu_add_item("Show Game Time", ::toggle_server_timer, true);
     menu menu_add_item("Fast Zombie Spawn", ::toggle_server_fast_zombies, true);
     menu menu_add_item("Unlimited Perks", ::toggle_server_perk_limit, true);
     menu menu_add_item("Allow Perk Powerup", ::toggle_server_powerup_perk, true);

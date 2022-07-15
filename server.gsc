@@ -2,36 +2,11 @@
 #include maps\mp\gametypes_zm\_hud_util;
 #include maps\mp\zombies\_zm_powerups;
 #include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zombies\_zm_laststand;
+#include maps\mp\zombies\_zm_perks;
+#include maps\mp\zombies\_zm_net;
 
 #include scripts\zm\render;
-
-toggle_server_timer()
-{
-    if (level.server_timer.hidden)
-        level.server_timer render_show_elem();
-    else
-        level.server_timer render_hide_elem();
-}
-
-server_timer()
-{
-    self endon("disconnect");
-
-    level.server_timer = render_server_timer("left", "top", "user_left", "user_top");
-    level.server_timer render_hide_elem();
-    level.server_timer settimerup(0);
-
-    start_time = int(gettime() / 1000);
-    level waittill("end_game");
-    end_time = int(gettime() / 1000);
-
-    for (;;)
-    {
-        level.server_timer settimer(end_time - start_time);
-
-        wait 0.05;
-    }
-}
 
 toggle_server_fast_zombies()
 {
@@ -79,7 +54,7 @@ toggle_server_perk_limit()
     level.is_unlimited_perks = !level.is_unlimited_perks;
 
     if (level.is_unlimited_perks)
-        level.perk_purchase_limit = getentarray("zombie_vending", "targetname").size;
+        level.perk_purchase_limit = 9;
     else
         level.perk_purchase_limit = 4;
 
@@ -88,11 +63,7 @@ toggle_server_perk_limit()
 
 toggle_server_powerup_perk()
 {
-    if (!level.zombie_powerups["free_perk"])
-    {
-        include_zombie_powerup("free_perk");
-        add_zombie_powerup("free_perk", "t6_wpn_zmb_perk_bottle_sleight_world", &"ZOMBIE_POWERUP_FREE_PERK", ::func_should_never_drop, 0, 0, 0);
-    }
+    server_powerup_grab_init();
 
     if (!isdefined(level.is_powerup_perk))
         level.is_powerup_perk = false;
@@ -100,25 +71,16 @@ toggle_server_powerup_perk()
     level.is_powerup_perk = !level.is_powerup_perk;
 
     if (level.is_powerup_perk)
-        level.zombie_powerups["free_perk"].func_should_drop_with_regular_powerups = ::func_should_always_drop;
+        level.zombie_powerups["perk"].func_should_drop_with_regular_powerups = ::func_should_always_drop;
     else
-        level.zombie_powerups["free_perk"].func_should_drop_with_regular_powerups = ::func_should_never_drop;
+        level.zombie_powerups["perk"].func_should_drop_with_regular_powerups = ::func_should_never_drop;
 
     iprintln("is_powerup_perk = " + level.is_powerup_perk);
 }
 
 toggle_server_powerup_packapunch()
 {
-    if (!level.zombie_powerups["packapunch"])
-    {
-        include_zombie_powerup("packapunch");
-        add_zombie_powerup("packapunch", "t6_wpn_zmb_raygun2_upg_world", &"ZOMBIE_POWERUP_PACKAPUNCH", ::func_should_never_drop, 0, 0, 0);
-
-        if (isdefined(level._zombiemode_powerup_grab))
-            level.stored_zombiemode_powerup_grab = level._zombiemode_powerup_grab;
-
-        level._zombiemode_powerup_grab = ::server_packapunch_powerup_grab;
-    }
+    server_powerup_grab_init();
 
     if (!isdefined(level.is_powerup_packapunch))
         level.is_powerup_packapunch = false;
@@ -133,12 +95,89 @@ toggle_server_powerup_packapunch()
     iprintln("is_powerup_packapunch = " + level.is_powerup_packapunch);
 }
 
-server_packapunch_powerup_grab(powerup, player)
+server_powerup_grab_init()
 {
-    if (powerup.powerup_name == "packapunch")
-        level thread server_packapunch_powerup(powerup, player);
-    else if (isdefined(level.stored_zombiemode_powerup_grab))
-        level thread [[level.stored_zombiemode_powerup_grab]](powerup, player);
+    if (isdefined(level.is_server_powerup_grab_init))
+        return;
+
+    if (isdefined(level._zombiemode_powerup_grab))
+        level.stored_zombiemode_powerup_grab = level._zombiemode_powerup_grab;
+
+    level._zombiemode_powerup_grab = ::server_powerup_grab;
+
+    include_zombie_powerup("perk");
+    include_zombie_powerup("packapunch");
+    add_zombie_powerup("perk", "t6_wpn_zmb_perk_bottle_sleight_world", &"ZOMBIE_POWERUP_PERK", ::func_should_never_drop, 0, 0, 0);
+    add_zombie_powerup("packapunch", "t6_wpn_zmb_raygun2_upg_world", &"ZOMBIE_POWERUP_PACKAPUNCH", ::func_should_never_drop, 0, 0, 0);
+
+    level.is_server_powerup_grab_init = true;
+}
+
+server_powerup_test()
+{
+    self endon("disconnect");
+
+    for (;;)
+    {
+        if (self meleebuttonpressed())
+        {
+            self server_powerup_force_drop();
+
+            while (self meleebuttonpressed())
+                wait 0.05;
+        }
+
+        wait 0.05;
+    }
+}
+
+server_powerup_force_drop()
+{
+    powerup = network_safe_spawn("powerup", 1, "script_model", self.origin
+        + vectorscale(anglestoforward(self.angles), 70)
+        + vectorscale((0, 0, 1), 40));
+
+    if (!isdefined(powerup))
+        return;
+
+    powerup powerup_setup();
+    powerup thread powerup_timeout();
+    powerup thread powerup_wobble();
+    powerup thread powerup_grab();
+    powerup thread powerup_move();
+    powerup thread powerup_emp();
+
+    level notify("powerup_dropped", powerup);
+}
+
+server_powerup_grab(powerup, player)
+{
+    switch (powerup.powerup_name)
+    {
+        case "perk":
+            level thread server_perk_powerup(powerup, player);
+            break;
+        case "packapunch":
+            level thread server_packapunch_powerup(powerup, player);
+            break;
+        default:
+            level thread [[level.stored_zombiemode_powerup_grab]](powerup, player);
+            break;
+    }
+}
+
+server_perk_powerup(powerup, player)
+{
+    player endon("disconnect");
+
+    if (player player_is_in_laststand() || player.sessionstate == "spectator")
+        return;
+
+    free_perk = player give_random_perk();
+    player iprintln("perk recieved: " + free_perk);
+
+    if (level.disable_free_perks_before_power)
+        player thread disable_perk_before_power(free_perk);
 }
 
 server_packapunch_powerup(powerup, player)

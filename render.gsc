@@ -46,6 +46,19 @@ render_server_timer(alignx, aligny, horzalign, vertalign)
     return hud;
 }
 
+render_player_timer(alignx, aligny, horzalign, vertalign)
+{
+    hud = createclienttimer("default", 1);
+
+    hud.alignx = alignx;
+    hud.aligny = aligny;
+    hud.horzalign = horzalign;
+    hud.vertalign = vertalign;
+    hud.foreground = true;
+
+    return hud;
+}
+
 render_hide_elem()
 {
     if (self.hidden)
