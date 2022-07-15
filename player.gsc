@@ -53,7 +53,7 @@ player_health()
     for (;;)
     {
         // change me
-        if (isdefined(self.player_zombie_text)
+        if (isdefined(self.player_zombie_text))
             self.player_health_text setpoint("BOTTOM", "BOTTOM", -100, 0);
         else
             self.player_health_text setpoint("BOTTOM", "BOTTOM", 0, 0);
