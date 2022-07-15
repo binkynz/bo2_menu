@@ -5,19 +5,19 @@
 
 toggle_player_timer()
 {
-    if (level.player_timer.hidden)
-        level.player_timer render_show_elem();
+    if (self.player_timer.hidden)
+        self.player_timer render_show_elem();
     else
-        level.player_timer render_hide_elem();
+        self.player_timer render_hide_elem();
 }
 
 player_timer()
 {
     self endon("disconnect");
 
-    level.player_timer = render_player_timer("left", "top", "user_left", "user_top");
-    level.player_timer render_hide_elem();
-    level.player_timer settimerup(0);
+    self.player_timer = render_player_timer("left", "top", "user_left", "user_top");
+    self.player_timer render_hide_elem();
+    self.player_timer settimerup(0);
 
     start_time = int(gettime() / 1000);
     level waittill("end_game");
@@ -25,7 +25,7 @@ player_timer()
 
     for (;;)
     {
-        level.player_timer settimer(end_time - start_time);
+        self.player_timer settimer(end_time - start_time);
 
         wait 0.05;
     }
