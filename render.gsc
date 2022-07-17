@@ -48,7 +48,7 @@ render_server_timer(alignx, aligny, horzalign, vertalign)
 
 render_player_timer(alignx, aligny, horzalign, vertalign)
 {
-    hud = createclienttimer("default", 1);
+    hud = self createclienttimer("default", 1);
 
     hud.alignx = alignx;
     hud.aligny = aligny;

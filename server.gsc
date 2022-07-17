@@ -200,14 +200,20 @@ server_packapunch_powerup(powerup, player)
     player giveweapon(weapon, 0, player get_pack_a_punch_weapon_options(weapon));
     player switchtoweapon(weapon);
 
-    // should add a icon/text displaying time remaining
+    time_text = player createfontstring("default", 1);
+    time_text setpoint("LEFT", "LEFT", 0, 0);
+    time_text.horzalign = "user_left";
+    time_text.label = &"PackAPunch Powerup: ";
 
     countdown = 30;
     while (countdown > 0)
     {
+        time_text setvalue(int(countdown * 10) / 10);
         wait 0.05;
         countdown -= 0.05;
     }
+
+    time_text render_destroy_elem();
 
     player takeweapon(weapon);
     player switchtoweapon(weapon_name);

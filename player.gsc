@@ -15,7 +15,7 @@ player_timer()
 {
     self endon("disconnect");
 
-    self.player_timer = render_player_timer("left", "top", "user_left", "user_top");
+    self.player_timer = self render_player_timer("left", "top", "user_left", "user_top");
     self.player_timer render_hide_elem();
     self.player_timer settimerup(0);
 
